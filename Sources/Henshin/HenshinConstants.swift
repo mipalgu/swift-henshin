@@ -23,8 +23,12 @@ public enum HenshinConstants {
     /// The directory of the target's resource bundle that holds the bundled documents.
     static let resourceSubdirectory = "Resources"
 
-    /// The name of the package that ships the bundled resources.
-    static let resourcePackageName = "SwiftHenshin"
+    /// The name of the package that ships the bundled resources, as its manifest gives it.
+    ///
+    /// The package manager names the resource directory of a target after this name and the
+    /// name of the target, and that directory is looked up by name where no resource bundle
+    /// is available, such as on WASI.
+    static let resourcePackageName = "swift-henshin"
 
     /// The name of the target that ships the bundled resources.
     static let resourceTargetName = "Henshin"

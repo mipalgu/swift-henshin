@@ -37,6 +37,15 @@ struct ApplicationSession: Sendable {
     /// Statistics of the search for matches.
     var statistics = MatchStatistics()
 
+    #if os(WASI)
+    /// The number of candidates that the search examines before it lets other tasks run.
+    ///
+    /// WebAssembly has no tail calls, so each asynchronous call that completes without
+    /// suspending deepens the call stack until the task next suspends. Suspending at regular
+    /// intervals keeps the stack of a search through a large model bounded.
+    static let candidatesBetweenSuspensions = 256
+    #endif
+
     /// Creates a session.
     ///
     /// - Parameters:
@@ -273,6 +282,9 @@ struct ApplicationSession: Sendable {
         let saved = state
         for candidate in candidates {
             statistics.candidates += 1
+            #if os(WASI)
+            if statistics.candidates.isMultiple(of: Self.candidatesBetweenSuspensions) { await Task.yield() }
+            #endif
             if try await admit(candidate, step, pattern, &state, conditions: conditions, goal: goal) {
                 if try await search(pattern, plan, depth + 1, &state, conditions: conditions, goal: goal, results: &results) {
                     state = saved

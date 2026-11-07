@@ -24,6 +24,15 @@ struct ModuleLoadingTests {
         #expect(again.id == package.id)
     }
 
+    @Test("The resource directory name is that of the bundle the package manager builds")
+    func metamodelResourceDirectory() throws {
+        let url = try #require(HenshinMetamodel.url())
+        let bundleName = HenshinMetamodel.bundleName
+        let expected = bundleName.package + ResourceBundleName.separator + bundleName.target
+        let directories = url.pathComponents.map { URL(fileURLWithPath: $0).deletingPathExtension().lastPathComponent }
+        #expect(directories.contains(expected), "\(url.path) is not inside \(bundleName.directoryName)")
+    }
+
     @Test("A hand-written document loads as a module with all its units")
     func units() async throws {
         let bank = try await Fixtures.bank()

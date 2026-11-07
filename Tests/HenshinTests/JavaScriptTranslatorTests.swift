@@ -112,7 +112,7 @@ struct JavaScriptTranslatorTests {
         do {
             _ = try translator.translate("missing + 1")
             Issue.record("expected an error")
-        } catch let error as HenshinError {
+        } catch {
             guard case .unsupportedExpression(let expression, let reason) = error else {
                 Issue.record("unexpected error \(error)")
                 return
