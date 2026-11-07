@@ -1,0 +1,286 @@
+// Neutral example rules over a small bank metamodel, written in Henshin Text.
+// They mirror the rules and units of bank.henshin.
+ePackageImport bank
+
+/* createAccount: creates an account for a named client unless the id is taken. */
+rule createAccount(IN client:EString, IN accountId:EInt, OUT account:Account) {
+	graph {
+		node bank:Bank
+		node owner:Client {
+			name = client
+		}
+		forbid node taken:Account {
+			id = accountId
+		}
+		create node account:Account {
+			id = accountId
+			balance = 0
+			frozen = false
+		}
+		edges [
+			(bank->owner:clients),
+			(forbid bank->taken:accounts),
+			(create bank->account:accounts),
+			(create owner->account:accounts)
+		]
+	}
+}
+
+// deposit: adds a positive amount to the balance of an account.
+rule deposit(IN id:EInt, IN amount:EInt, VAR x:EInt) {
+	conditions [amount > 0]
+	graph {
+		node target:Account {
+			id = id
+			balance = x
+			set balance = x + amount
+		}
+	}
+}
+
+// transfer: moves an amount between two accounts if the source covers it.
+rule transfer(IN from:EInt, IN to:EInt, IN amount:EInt, VAR x:EInt, VAR y:EInt) {
+	conditions [x >= amount]
+	graph {
+		node source:Account {
+			id = from
+			balance = x
+			set balance = x - amount
+		}
+		node target:Account {
+			id = to
+			balance = y
+			set balance = y + amount
+		}
+	}
+}
+
+// deleteAccount: deletes an account with both of its incident references.
+rule deleteAccount(IN id:EInt) {
+	graph {
+		node bank:Bank
+		node owner:Client
+		delete node account:Account {
+			id = id
+		}
+		edges [
+			(delete bank->account:accounts),
+			(delete owner->account:accounts)
+		]
+	}
+}
+
+// removeAccountOnly: deletes an account without its references; dangling if referenced.
+rule removeAccountOnly(IN id:EInt) {
+	graph {
+		delete node account:Account {
+			id = id
+		}
+	}
+}
+
+// purgeAccount: as removeAccountOnly, but without the dangling condition.
+rule purgeAccount(IN id:EInt) {
+	checkDangling false
+	graph {
+		delete node account:Account {
+			id = id
+		}
+	}
+}
+
+// closeClient: deletes a client and, through a multi-rule, all of their accounts.
+rule closeClient(IN name:EString) {
+	graph {
+		node bank:Bank
+		delete node client:Client {
+			name = name
+		}
+		edges [
+			(delete bank->client:clients)
+		]
+		multiRule closeClientAccounts {
+			graph {
+				delete node account:Account
+				edges [
+					(delete bank->account:accounts),
+					(delete client->account:accounts)
+				]
+			}
+		}
+	}
+}
+
+// closeClientNaive: the kernel of closeClient alone; dangling while accounts remain.
+rule closeClientNaive(IN name:EString) {
+	graph {
+		node bank:Bank
+		delete node client:Client {
+			name = name
+		}
+		edges [
+			(delete bank->client:clients)
+		]
+	}
+}
+
+// createClient: adds a client unless one of the same name exists.
+rule createClient(IN name:EString) {
+	graph {
+		node bank:Bank
+		forbid node other:Client {
+			name = name
+		}
+		create node client:Client {
+			name = name
+		}
+		edges [
+			(forbid bank->other:clients),
+			(create bank->client:clients)
+		]
+	}
+}
+
+// hasClient: an identity rule that succeeds if a client of the name exists.
+rule hasClient(IN name:EString, OUT client:Client) {
+	graph {
+		node client:Client {
+			name = name
+		}
+	}
+}
+
+// freezeOwned: freezes an unfrozen account that has an owner.
+rule freezeOwned() {
+	graph {
+		node account:Account {
+			frozen = false
+			set frozen = true
+		}
+		require node owner:Client
+		edges [
+			(require owner->account:accounts)
+		]
+	}
+}
+
+// addBonus: adds one to the balance of an account.
+rule addBonus(IN id:EInt, VAR x:EInt) {
+	graph {
+		node account:Account {
+			id = id
+			balance = x
+			set balance = x + 1
+		}
+	}
+}
+
+// befriend: links two distinct clients unless they are already friends.
+rule befriend(IN x:EString, IN y:EString) {
+	conditions [x != y]
+	graph {
+		node first:Client {
+			name = x
+		}
+		node second:Client {
+			name = y
+		}
+		edges [
+			(forbid first->second:friends),
+			(create first->second:friends)
+		]
+	}
+}
+
+// suffixName: appends a suffix to the name of a client.
+rule suffixName(IN name:EString, IN suffix:EString) {
+	graph {
+		node client:Client {
+			name = name
+			set name = name + ' ' + suffix.toUpperCase()
+		}
+	}
+}
+
+// openAndFund: creates an account and deposits into it (strict, rolls back).
+unit openAndFund(IN client:EString, IN accountId:EInt, IN amount:EInt, OUT account:Account) {
+	createAccount(client, accountId, account)
+	deposit(accountId, amount)
+}
+
+// openAndFundKeep: as openAndFund, but a failure keeps what was done.
+unit openAndFundKeep(IN client:EString, IN accountId:EInt, IN amount:EInt, VAR account:Account) {
+	rollback false
+	createAccount(client, accountId, account)
+	deposit(accountId, amount)
+}
+
+// openAndFundLoose: a lenient sequence that succeeds if any step does.
+unit openAndFundLoose(IN client:EString, IN accountId:EInt, IN amount:EInt, VAR account:Account) {
+	strict false
+	createAccount(client, accountId, account)
+	deposit(accountId, amount)
+}
+
+// ensureClientAccount: opens an account for an existing client, else creates the client.
+unit ensureClientAccount(IN name:EString, IN accountId:EInt, OUT client:Client, VAR account:Account) {
+	if (hasClient(name, client)) then {
+		createAccount(name, accountId, account)
+	} else {
+		createClient(name)
+	}
+}
+
+// depositOrCreate: deposits if the account exists, else creates it.
+unit depositOrCreate(IN name:EString, IN accountId:EInt, IN amount:EInt, VAR account:Account) {
+	priority [deposit(accountId, amount), createAccount(name, accountId, account)]
+}
+
+// freezeOrCreate: applies one applicable alternative.
+unit freezeOrCreate(IN name:EString) {
+	independent [freezeOwned(), createClient(name)]
+}
+
+// freezeAll: freezes every owned account.
+unit freezeAll() {
+	while {
+		freezeOwned()
+	}
+}
+
+// bonusThrice: adds a bonus three times.
+unit bonusThrice(IN id:EInt) {
+	for (3) {
+		addBonus(id)
+	}
+}
+
+// bonusTimes: adds a bonus a given number of times.
+unit bonusTimes(IN id:EInt, IN n:EInt) {
+	for (n) {
+		addBonus(id)
+	}
+}
+
+// bonusTwiceTimes: adds a bonus twice the given number of times.
+unit bonusTwiceTimes(IN id:EInt, IN n:EInt) {
+	for (n * 2) {
+		addBonus(id)
+	}
+}
+
+// deleteTwiceLenient: deletes twice without strictness, keeping the first deletion.
+unit deleteTwiceLenient(IN id:EInt) {
+	for (2) {
+		deleteAccount(id)
+	}
+}
+
+// openWithBonuses: opens an account, then deposits and adds a bonus a number of times.
+unit openWithBonuses(IN client:EString, IN accountId:EInt, IN amount:EInt, IN n:EInt, OUT account:Account) {
+	createAccount(client, accountId, account)
+	for (n) {
+		deposit(accountId, amount)
+		addBonus(accountId)
+	}
+}

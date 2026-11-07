@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="module" name="graphRules" description="Neutral example rules over directed graphs for conflict and dependency analysis">
+  <imports href="graphs.ecore#/"/>
+
+  <!-- deleteNext: deletes a next edge between two nodes. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_dn" name="deleteNext">
+    <lhs xmi:id="dn_l" name="Lhs">
+      <nodes xmi:id="dn_l_x" name="x"><type href="graphs.ecore#//Node"/></nodes>
+      <nodes xmi:id="dn_l_y" name="y"><type href="graphs.ecore#//Node"/></nodes>
+      <edges xmi:id="dn_l_e" source="dn_l_x" target="dn_l_y"><type href="graphs.ecore#//Node/next"/></edges>
+    </lhs>
+    <rhs xmi:id="dn_r" name="Rhs">
+      <nodes xmi:id="dn_r_x" name="x"><type href="graphs.ecore#//Node"/></nodes>
+      <nodes xmi:id="dn_r_y" name="y"><type href="graphs.ecore#//Node"/></nodes>
+    </rhs>
+    <mappings xmi:id="dn_m1" origin="dn_l_x" image="dn_r_x"/>
+    <mappings xmi:id="dn_m2" origin="dn_l_y" image="dn_r_y"/>
+  </units>
+
+  <!-- addNext: adds a next edge between two nodes unless there is one already (NAC). -->
+  <units xsi:type="henshin:Rule" xmi:id="r_an" name="addNext">
+    <lhs xmi:id="an_l" name="Lhs">
+      <nodes xmi:id="an_l_x" name="x"><type href="graphs.ecore#//Node"/></nodes>
+      <nodes xmi:id="an_l_y" name="y"><type href="graphs.ecore#//Node"/></nodes>
+      <formula xsi:type="henshin:Not" xmi:id="an_l_not">
+        <child xsi:type="henshin:NestedCondition" xmi:id="an_l_nac">
+          <conclusion xmi:id="an_n" name="linked">
+            <nodes xmi:id="an_n_x"><type href="graphs.ecore#//Node"/></nodes>
+            <nodes xmi:id="an_n_y"><type href="graphs.ecore#//Node"/></nodes>
+            <edges xmi:id="an_n_e" source="an_n_x" target="an_n_y"><type href="graphs.ecore#//Node/next"/></edges>
+          </conclusion>
+          <mappings xmi:id="an_n_m1" origin="an_l_x" image="an_n_x"/>
+          <mappings xmi:id="an_n_m2" origin="an_l_y" image="an_n_y"/>
+        </child>
+      </formula>
+    </lhs>
+    <rhs xmi:id="an_r" name="Rhs">
+      <nodes xmi:id="an_r_x" name="x"><type href="graphs.ecore#//Node"/></nodes>
+      <nodes xmi:id="an_r_y" name="y"><type href="graphs.ecore#//Node"/></nodes>
+      <edges xmi:id="an_r_e" source="an_r_x" target="an_r_y"><type href="graphs.ecore#//Node/next"/></edges>
+    </rhs>
+    <mappings xmi:id="an_m1" origin="an_l_x" image="an_r_x"/>
+    <mappings xmi:id="an_m2" origin="an_l_y" image="an_r_y"/>
+  </units>
+
+  <!-- deleteNode: deletes a node of a graph; the dangling condition keeps linked nodes. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_dl" name="deleteNode">
+    <lhs xmi:id="dl_l" name="Lhs">
+      <nodes xmi:id="dl_l_g" name="g"><type href="graphs.ecore#//Graph"/></nodes>
+      <nodes xmi:id="dl_l_n" name="n"><type href="graphs.ecore#//Node"/></nodes>
+      <edges xmi:id="dl_l_e" source="dl_l_g" target="dl_l_n"><type href="graphs.ecore#//Graph/nodes"/></edges>
+    </lhs>
+    <rhs xmi:id="dl_r" name="Rhs">
+      <nodes xmi:id="dl_r_g" name="g"><type href="graphs.ecore#//Graph"/></nodes>
+    </rhs>
+    <mappings xmi:id="dl_m1" origin="dl_l_g" image="dl_r_g"/>
+  </units>
+
+  <!-- createNode: adds an unmarked node to a graph. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_cn" name="createNode">
+    <lhs xmi:id="cn_l" name="Lhs">
+      <nodes xmi:id="cn_l_g" name="g"><type href="graphs.ecore#//Graph"/></nodes>
+    </lhs>
+    <rhs xmi:id="cn_r" name="Rhs">
+      <nodes xmi:id="cn_r_g" name="g"><type href="graphs.ecore#//Graph"/></nodes>
+      <nodes xmi:id="cn_r_n" name="n">
+        <type href="graphs.ecore#//Node"/>
+        <attributes xmi:id="cn_r_n_m" value="false"><type href="graphs.ecore#//Node/marked"/></attributes>
+      </nodes>
+      <edges xmi:id="cn_r_e" source="cn_r_g" target="cn_r_n"><type href="graphs.ecore#//Graph/nodes"/></edges>
+    </rhs>
+    <mappings xmi:id="cn_m1" origin="cn_l_g" image="cn_r_g"/>
+  </units>
+
+  <!-- mark: marks an unmarked node. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_mk" name="mark">
+    <lhs xmi:id="mk_l" name="Lhs">
+      <nodes xmi:id="mk_l_n" name="n">
+        <type href="graphs.ecore#//Node"/>
+        <attributes xmi:id="mk_l_n_m" value="false"><type href="graphs.ecore#//Node/marked"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="mk_r" name="Rhs">
+      <nodes xmi:id="mk_r_n" name="n">
+        <type href="graphs.ecore#//Node"/>
+        <attributes xmi:id="mk_r_n_m" value="true"><type href="graphs.ecore#//Node/marked"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="mk_m1" origin="mk_l_n" image="mk_r_n"/>
+  </units>
+
+  <!-- propagate: marks the unmarked successor of a marked node. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_pg" name="propagate">
+    <lhs xmi:id="pg_l" name="Lhs">
+      <nodes xmi:id="pg_l_x" name="x">
+        <type href="graphs.ecore#//Node"/>
+        <attributes xmi:id="pg_l_x_m" value="true"><type href="graphs.ecore#//Node/marked"/></attributes>
+      </nodes>
+      <nodes xmi:id="pg_l_y" name="y">
+        <type href="graphs.ecore#//Node"/>
+        <attributes xmi:id="pg_l_y_m" value="false"><type href="graphs.ecore#//Node/marked"/></attributes>
+      </nodes>
+      <edges xmi:id="pg_l_e" source="pg_l_x" target="pg_l_y"><type href="graphs.ecore#//Node/next"/></edges>
+    </lhs>
+    <rhs xmi:id="pg_r" name="Rhs">
+      <nodes xmi:id="pg_r_x" name="x">
+        <type href="graphs.ecore#//Node"/>
+        <attributes xmi:id="pg_r_x_m" value="true"><type href="graphs.ecore#//Node/marked"/></attributes>
+      </nodes>
+      <nodes xmi:id="pg_r_y" name="y">
+        <type href="graphs.ecore#//Node"/>
+        <attributes xmi:id="pg_r_y_m" value="true"><type href="graphs.ecore#//Node/marked"/></attributes>
+      </nodes>
+      <edges xmi:id="pg_r_e" source="pg_r_x" target="pg_r_y"><type href="graphs.ecore#//Node/next"/></edges>
+    </rhs>
+    <mappings xmi:id="pg_m1" origin="pg_l_x" image="pg_r_x"/>
+    <mappings xmi:id="pg_m2" origin="pg_l_y" image="pg_r_y"/>
+  </units>
+</henshin:Module>

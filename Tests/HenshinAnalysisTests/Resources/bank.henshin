@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="module" name="bankRules" description="Neutral example rules over a small bank metamodel">
+  <imports href="bank.ecore#/"/>
+
+  <!-- createAccount: creates an account for a named client unless the id is taken (NAC). -->
+  <units xsi:type="henshin:Rule" xmi:id="r_ca" name="createAccount">
+    <parameters xmi:id="p_ca_client" name="client" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </parameters>
+    <parameters xmi:id="p_ca_id" name="accountId" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <parameters xmi:id="p_ca_account" name="account" kind="OUT">
+      <type href="bank.ecore#//Account"/>
+    </parameters>
+    <lhs xmi:id="ca_l" name="Lhs">
+      <nodes xmi:id="ca_l_b" name="bank"><type href="bank.ecore#//Bank"/></nodes>
+      <nodes xmi:id="ca_l_c">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="ca_l_c_name" value="client"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+      <edges xmi:id="ca_l_e1" source="ca_l_b" target="ca_l_c"><type href="bank.ecore#//Bank/clients"/></edges>
+      <formula xsi:type="henshin:Not" xmi:id="ca_l_not">
+        <child xsi:type="henshin:NestedCondition" xmi:id="ca_l_nac">
+          <conclusion xmi:id="ca_n" name="idTaken">
+            <nodes xmi:id="ca_n_b"><type href="bank.ecore#//Bank"/></nodes>
+            <nodes xmi:id="ca_n_a">
+              <type href="bank.ecore#//Account"/>
+              <attributes xmi:id="ca_n_a_id" value="accountId"><type href="bank.ecore#//Account/id"/></attributes>
+            </nodes>
+            <edges xmi:id="ca_n_e1" source="ca_n_b" target="ca_n_a"><type href="bank.ecore#//Bank/accounts"/></edges>
+          </conclusion>
+          <mappings xmi:id="ca_n_m1" origin="ca_l_b" image="ca_n_b"/>
+        </child>
+      </formula>
+    </lhs>
+    <rhs xmi:id="ca_r" name="Rhs">
+      <nodes xmi:id="ca_r_b" name="bank"><type href="bank.ecore#//Bank"/></nodes>
+      <nodes xmi:id="ca_r_c">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="ca_r_c_name" value="client"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+      <nodes xmi:id="ca_r_a" name="account">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="ca_r_a_id" value="accountId"><type href="bank.ecore#//Account/id"/></attributes>
+        <attributes xmi:id="ca_r_a_bal" value="0"><type href="bank.ecore#//Account/balance"/></attributes>
+        <attributes xmi:id="ca_r_a_frz" value="false"><type href="bank.ecore#//Account/frozen"/></attributes>
+      </nodes>
+      <edges xmi:id="ca_r_e1" source="ca_r_b" target="ca_r_c"><type href="bank.ecore#//Bank/clients"/></edges>
+      <edges xmi:id="ca_r_e2" source="ca_r_b" target="ca_r_a"><type href="bank.ecore#//Bank/accounts"/></edges>
+      <edges xmi:id="ca_r_e3" source="ca_r_c" target="ca_r_a"><type href="bank.ecore#//Client/accounts"/></edges>
+    </rhs>
+    <mappings xmi:id="ca_m1" origin="ca_l_b" image="ca_r_b"/>
+    <mappings xmi:id="ca_m2" origin="ca_l_c" image="ca_r_c"/>
+  </units>
+
+  <!-- deposit: adds a positive amount to the balance of an account. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_dep" name="deposit">
+    <parameters xmi:id="p_dep_id" name="id" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/></parameters>
+    <parameters xmi:id="p_dep_amount" name="amount" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/></parameters>
+    <parameters xmi:id="p_dep_x" name="x" kind="VAR"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/></parameters>
+    <lhs xmi:id="dep_l" name="Lhs">
+      <nodes xmi:id="dep_l_a">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="dep_l_a_id" value="id"><type href="bank.ecore#//Account/id"/></attributes>
+        <attributes xmi:id="dep_l_a_bal" value="x"><type href="bank.ecore#//Account/balance"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="dep_r" name="Rhs">
+      <nodes xmi:id="dep_r_a">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="dep_r_a_id" value="id"><type href="bank.ecore#//Account/id"/></attributes>
+        <attributes xmi:id="dep_r_a_bal" value="x + amount"><type href="bank.ecore#//Account/balance"/></attributes>
+      </nodes>
+    </rhs>
+    <attributeConditions xmi:id="dep_cond" name="positive" conditionText="amount &gt; 0"/>
+    <mappings xmi:id="dep_m1" origin="dep_l_a" image="dep_r_a"/>
+  </units>
+
+  <!-- transfer: moves an amount between two accounts if the source covers it. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_tr" name="transfer">
+    <parameters xmi:id="p_tr_from" name="from" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/></parameters>
+    <parameters xmi:id="p_tr_to" name="to" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/></parameters>
+    <parameters xmi:id="p_tr_amount" name="amount" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/></parameters>
+    <parameters xmi:id="p_tr_x" name="x" kind="VAR"/>
+    <parameters xmi:id="p_tr_y" name="y" kind="VAR"/>
+    <lhs xmi:id="tr_l" name="Lhs">
+      <nodes xmi:id="tr_l_a1">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="tr_l_a1_id" value="from"><type href="bank.ecore#//Account/id"/></attributes>
+        <attributes xmi:id="tr_l_a1_bal" value="x"><type href="bank.ecore#//Account/balance"/></attributes>
+      </nodes>
+      <nodes xmi:id="tr_l_a2">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="tr_l_a2_id" value="to"><type href="bank.ecore#//Account/id"/></attributes>
+        <attributes xmi:id="tr_l_a2_bal" value="y"><type href="bank.ecore#//Account/balance"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="tr_r" name="Rhs">
+      <nodes xmi:id="tr_r_a1">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="tr_r_a1_bal" value="x - amount"><type href="bank.ecore#//Account/balance"/></attributes>
+      </nodes>
+      <nodes xmi:id="tr_r_a2">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="tr_r_a2_bal" value="y + amount"><type href="bank.ecore#//Account/balance"/></attributes>
+      </nodes>
+    </rhs>
+    <attributeConditions xmi:id="tr_cond" name="covered" conditionText="x &gt;= amount"/>
+    <mappings xmi:id="tr_m1" origin="tr_l_a1" image="tr_r_a1"/>
+    <mappings xmi:id="tr_m2" origin="tr_l_a2" image="tr_r_a2"/>
+  </units>
+
+  <!-- deleteAccount: deletes an account with both of its incident references. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_del" name="deleteAccount">
+    <parameters xmi:id="p_del_id" name="id" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/></parameters>
+    <lhs xmi:id="del_l" name="Lhs">
+      <nodes xmi:id="del_l_b"><type href="bank.ecore#//Bank"/></nodes>
+      <nodes xmi:id="del_l_c"><type href="bank.ecore#//Client"/></nodes>
+      <nodes xmi:id="del_l_a">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="del_l_a_id" value="id"><type href="bank.ecore#//Account/id"/></attributes>
+      </nodes>
+      <edges xmi:id="del_l_e1" source="del_l_b" target="del_l_a"><type href="bank.ecore#//Bank/accounts"/></edges>
+      <edges xmi:id="del_l_e2" source="del_l_c" target="del_l_a"><type href="bank.ecore#//Client/accounts"/></edges>
+    </lhs>
+    <rhs xmi:id="del_r" name="Rhs">
+      <nodes xmi:id="del_r_b"><type href="bank.ecore#//Bank"/></nodes>
+      <nodes xmi:id="del_r_c"><type href="bank.ecore#//Client"/></nodes>
+    </rhs>
+    <mappings xmi:id="del_m1" origin="del_l_b" image="del_r_b"/>
+    <mappings xmi:id="del_m2" origin="del_l_c" image="del_r_c"/>
+  </units>
+
+  <!-- removeAccountOnly: deletes an account without its references; dangling if referenced. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_rao" name="removeAccountOnly">
+    <parameters xmi:id="p_rao_id" name="id" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/></parameters>
+    <lhs xmi:id="rao_l" name="Lhs">
+      <nodes xmi:id="rao_l_a">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="rao_l_a_id" value="id"><type href="bank.ecore#//Account/id"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="rao_r" name="Rhs"/>
+  </units>
+
+  <!-- purgeAccount: as removeAccountOnly, but without the dangling condition. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_pa" name="purgeAccount" checkDangling="false">
+    <parameters xmi:id="p_pa_id" name="id" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/></parameters>
+    <lhs xmi:id="pa_l" name="Lhs">
+      <nodes xmi:id="pa_l_a">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="pa_l_a_id" value="id"><type href="bank.ecore#//Account/id"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="pa_r" name="Rhs"/>
+  </units>
+
+  <!-- closeClient: deletes a client and, through a multi-rule, all of their accounts. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_cc" name="closeClient">
+    <parameters xmi:id="p_cc_name" name="name" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/></parameters>
+    <lhs xmi:id="cc_l" name="Lhs">
+      <nodes xmi:id="cc_l_b"><type href="bank.ecore#//Bank"/></nodes>
+      <nodes xmi:id="cc_l_c">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="cc_l_c_name" value="name"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+      <edges xmi:id="cc_l_e1" source="cc_l_b" target="cc_l_c"><type href="bank.ecore#//Bank/clients"/></edges>
+    </lhs>
+    <rhs xmi:id="cc_r" name="Rhs">
+      <nodes xmi:id="cc_r_b"><type href="bank.ecore#//Bank"/></nodes>
+    </rhs>
+    <mappings xmi:id="cc_m1" origin="cc_l_b" image="cc_r_b"/>
+    <multiRules xmi:id="r_ccm" name="closeClientAccounts">
+      <lhs xmi:id="ccm_l" name="Lhs">
+        <nodes xmi:id="ccm_l_b"><type href="bank.ecore#//Bank"/></nodes>
+        <nodes xmi:id="ccm_l_c"><type href="bank.ecore#//Client"/></nodes>
+        <nodes xmi:id="ccm_l_a"><type href="bank.ecore#//Account"/></nodes>
+        <edges xmi:id="ccm_l_e0" source="ccm_l_b" target="ccm_l_c"><type href="bank.ecore#//Bank/clients"/></edges>
+        <edges xmi:id="ccm_l_e1" source="ccm_l_b" target="ccm_l_a"><type href="bank.ecore#//Bank/accounts"/></edges>
+        <edges xmi:id="ccm_l_e2" source="ccm_l_c" target="ccm_l_a"><type href="bank.ecore#//Client/accounts"/></edges>
+      </lhs>
+      <rhs xmi:id="ccm_r" name="Rhs">
+        <nodes xmi:id="ccm_r_b"><type href="bank.ecore#//Bank"/></nodes>
+      </rhs>
+      <mappings xmi:id="ccm_m1" origin="ccm_l_b" image="ccm_r_b"/>
+      <multiMappings xmi:id="ccm_mm1" origin="cc_l_b" image="ccm_l_b"/>
+      <multiMappings xmi:id="ccm_mm2" origin="cc_l_c" image="ccm_l_c"/>
+      <multiMappings xmi:id="ccm_mm3" origin="cc_r_b" image="ccm_r_b"/>
+    </multiRules>
+  </units>
+
+  <!-- closeClientNaive: the kernel of closeClient alone; dangling while accounts remain. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_ccn" name="closeClientNaive">
+    <parameters xmi:id="p_ccn_name" name="name" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/></parameters>
+    <lhs xmi:id="ccn_l" name="Lhs">
+      <nodes xmi:id="ccn_l_b"><type href="bank.ecore#//Bank"/></nodes>
+      <nodes xmi:id="ccn_l_c">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="ccn_l_c_name" value="name"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+      <edges xmi:id="ccn_l_e1" source="ccn_l_b" target="ccn_l_c"><type href="bank.ecore#//Bank/clients"/></edges>
+    </lhs>
+    <rhs xmi:id="ccn_r" name="Rhs">
+      <nodes xmi:id="ccn_r_b"><type href="bank.ecore#//Bank"/></nodes>
+    </rhs>
+    <mappings xmi:id="ccn_m1" origin="ccn_l_b" image="ccn_r_b"/>
+  </units>
+
+  <!-- createClient: adds a client unless one of the same name exists (NAC). -->
+  <units xsi:type="henshin:Rule" xmi:id="r_cl" name="createClient">
+    <parameters xmi:id="p_cl_name" name="name" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/></parameters>
+    <lhs xmi:id="cl_l" name="Lhs">
+      <nodes xmi:id="cl_l_b"><type href="bank.ecore#//Bank"/></nodes>
+      <formula xsi:type="henshin:Not" xmi:id="cl_l_not">
+        <child xsi:type="henshin:NestedCondition" xmi:id="cl_l_nac">
+          <conclusion xmi:id="cl_n" name="nameTaken">
+            <nodes xmi:id="cl_n_b"><type href="bank.ecore#//Bank"/></nodes>
+            <nodes xmi:id="cl_n_c">
+              <type href="bank.ecore#//Client"/>
+              <attributes xmi:id="cl_n_c_name" value="name"><type href="bank.ecore#//Person/name"/></attributes>
+            </nodes>
+            <edges xmi:id="cl_n_e1" source="cl_n_b" target="cl_n_c"><type href="bank.ecore#//Bank/clients"/></edges>
+          </conclusion>
+          <mappings xmi:id="cl_n_m1" origin="cl_l_b" image="cl_n_b"/>
+        </child>
+      </formula>
+    </lhs>
+    <rhs xmi:id="cl_r" name="Rhs">
+      <nodes xmi:id="cl_r_b"><type href="bank.ecore#//Bank"/></nodes>
+      <nodes xmi:id="cl_r_c">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="cl_r_c_name" value="name"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+      <edges xmi:id="cl_r_e1" source="cl_r_b" target="cl_r_c"><type href="bank.ecore#//Bank/clients"/></edges>
+    </rhs>
+    <mappings xmi:id="cl_m1" origin="cl_l_b" image="cl_r_b"/>
+  </units>
+
+  <!-- hasClient: an identity rule that succeeds if a client of the name exists. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_hc" name="hasClient">
+    <parameters xmi:id="p_hc_name" name="name" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/></parameters>
+    <parameters xmi:id="p_hc_client" name="client" kind="OUT"><type href="bank.ecore#//Client"/></parameters>
+    <lhs xmi:id="hc_l" name="Lhs">
+      <nodes xmi:id="hc_l_c" name="client">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="hc_l_c_name" value="name"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="hc_r" name="Rhs">
+      <nodes xmi:id="hc_r_c" name="client">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="hc_r_c_name" value="name"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="hc_m1" origin="hc_l_c" image="hc_r_c"/>
+  </units>
+
+  <!-- freezeOwned: freezes an unfrozen account that has an owner (PAC). -->
+  <units xsi:type="henshin:Rule" xmi:id="r_fz" name="freezeOwned">
+    <lhs xmi:id="fz_l" name="Lhs">
+      <nodes xmi:id="fz_l_a">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="fz_l_a_frz" value="false"><type href="bank.ecore#//Account/frozen"/></attributes>
+      </nodes>
+      <formula xsi:type="henshin:NestedCondition" xmi:id="fz_l_pac">
+        <conclusion xmi:id="fz_n" name="owned">
+          <nodes xmi:id="fz_n_a"><type href="bank.ecore#//Account"/></nodes>
+          <nodes xmi:id="fz_n_c"><type href="bank.ecore#//Client"/></nodes>
+          <edges xmi:id="fz_n_e1" source="fz_n_c" target="fz_n_a"><type href="bank.ecore#//Client/accounts"/></edges>
+        </conclusion>
+        <mappings xmi:id="fz_n_m1" origin="fz_l_a" image="fz_n_a"/>
+      </formula>
+    </lhs>
+    <rhs xmi:id="fz_r" name="Rhs">
+      <nodes xmi:id="fz_r_a">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="fz_r_a_frz" value="true"><type href="bank.ecore#//Account/frozen"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="fz_m1" origin="fz_l_a" image="fz_r_a"/>
+  </units>
+
+  <!-- addBonus: adds one to the balance of an account. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_bonus" name="addBonus">
+    <parameters xmi:id="p_bonus_id" name="id" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/></parameters>
+    <parameters xmi:id="p_bonus_x" name="x" kind="VAR"/>
+    <lhs xmi:id="bonus_l" name="Lhs">
+      <nodes xmi:id="bonus_l_a">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="bonus_l_a_id" value="id"><type href="bank.ecore#//Account/id"/></attributes>
+        <attributes xmi:id="bonus_l_a_bal" value="x"><type href="bank.ecore#//Account/balance"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="bonus_r" name="Rhs">
+      <nodes xmi:id="bonus_r_a">
+        <type href="bank.ecore#//Account"/>
+        <attributes xmi:id="bonus_r_a_id" value="id"><type href="bank.ecore#//Account/id"/></attributes>
+        <attributes xmi:id="bonus_r_a_bal" value="x + 1"><type href="bank.ecore#//Account/balance"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="bonus_m1" origin="bonus_l_a" image="bonus_r_a"/>
+  </units>
+
+  <!-- befriend: links two distinct clients unless they are already friends (NAC). -->
+  <units xsi:type="henshin:Rule" xmi:id="r_bf" name="befriend">
+    <parameters xmi:id="p_bf_x" name="x" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/></parameters>
+    <parameters xmi:id="p_bf_y" name="y" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/></parameters>
+    <lhs xmi:id="bf_l" name="Lhs">
+      <nodes xmi:id="bf_l_c1">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="bf_l_c1_name" value="x"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+      <nodes xmi:id="bf_l_c2">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="bf_l_c2_name" value="y"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+      <formula xsi:type="henshin:Not" xmi:id="bf_l_not">
+        <child xsi:type="henshin:NestedCondition" xmi:id="bf_l_nac">
+          <conclusion xmi:id="bf_n" name="alreadyFriends">
+            <nodes xmi:id="bf_n_c1"><type href="bank.ecore#//Client"/></nodes>
+            <nodes xmi:id="bf_n_c2"><type href="bank.ecore#//Client"/></nodes>
+            <edges xmi:id="bf_n_e1" source="bf_n_c1" target="bf_n_c2"><type href="bank.ecore#//Client/friends"/></edges>
+          </conclusion>
+          <mappings xmi:id="bf_n_m1" origin="bf_l_c1" image="bf_n_c1"/>
+          <mappings xmi:id="bf_n_m2" origin="bf_l_c2" image="bf_n_c2"/>
+        </child>
+      </formula>
+    </lhs>
+    <rhs xmi:id="bf_r" name="Rhs">
+      <nodes xmi:id="bf_r_c1"><type href="bank.ecore#//Client"/></nodes>
+      <nodes xmi:id="bf_r_c2"><type href="bank.ecore#//Client"/></nodes>
+      <edges xmi:id="bf_r_e1" source="bf_r_c1" target="bf_r_c2"><type href="bank.ecore#//Client/friends"/></edges>
+    </rhs>
+    <attributeConditions xmi:id="bf_cond" name="distinct" conditionText="x != y"/>
+    <mappings xmi:id="bf_m1" origin="bf_l_c1" image="bf_r_c1"/>
+    <mappings xmi:id="bf_m2" origin="bf_l_c2" image="bf_r_c2"/>
+  </units>
+
+  <!-- suffixName: appends a suffix to the name of a client (string concatenation). -->
+  <units xsi:type="henshin:Rule" xmi:id="r_sfx" name="suffixName">
+    <parameters xmi:id="p_sfx_name" name="name" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/></parameters>
+    <parameters xmi:id="p_sfx_suffix" name="suffix" kind="IN"><type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/></parameters>
+    <lhs xmi:id="sfx_l" name="Lhs">
+      <nodes xmi:id="sfx_l_c">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="sfx_l_c_name" value="name"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="sfx_r" name="Rhs">
+      <nodes xmi:id="sfx_r_c">
+        <type href="bank.ecore#//Client"/>
+        <attributes xmi:id="sfx_r_c_name" value="name + ' ' + suffix.toUpperCase()"><type href="bank.ecore#//Person/name"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="sfx_m1" origin="sfx_l_c" image="sfx_r_c"/>
+  </units>
+
+  <!-- openAndFund: creates an account and deposits into it (strict, rolls back). -->
+  <units xsi:type="henshin:SequentialUnit" xmi:id="u_open" name="openAndFund" subUnits="r_ca r_dep">
+    <parameters xmi:id="p_open_client" name="client" kind="IN"/>
+    <parameters xmi:id="p_open_id" name="accountId" kind="IN"/>
+    <parameters xmi:id="p_open_amount" name="amount" kind="IN"/>
+    <parameters xmi:id="p_open_account" name="account" kind="OUT"/>
+    <parameterMappings source="p_open_client" target="p_ca_client"/>
+    <parameterMappings source="p_open_id" target="p_ca_id"/>
+    <parameterMappings source="p_ca_account" target="p_open_account"/>
+    <parameterMappings source="p_open_id" target="p_dep_id"/>
+    <parameterMappings source="p_open_amount" target="p_dep_amount"/>
+  </units>
+
+  <!-- openAndFundKeep: as openAndFund, but a failure keeps what was done (no rollback). -->
+  <units xsi:type="henshin:SequentialUnit" xmi:id="u_keep" name="openAndFundKeep" subUnits="r_ca r_dep" rollback="false">
+    <parameters xmi:id="p_keep_client" name="client" kind="IN"/>
+    <parameters xmi:id="p_keep_id" name="accountId" kind="IN"/>
+    <parameters xmi:id="p_keep_amount" name="amount" kind="IN"/>
+    <parameterMappings source="p_keep_client" target="p_ca_client"/>
+    <parameterMappings source="p_keep_id" target="p_ca_id"/>
+    <parameterMappings source="p_keep_id" target="p_dep_id"/>
+    <parameterMappings source="p_keep_amount" target="p_dep_amount"/>
+  </units>
+
+  <!-- openAndFundLoose: a non-strict sequence that succeeds if any sub-unit does. -->
+  <units xsi:type="henshin:SequentialUnit" xmi:id="u_loose" name="openAndFundLoose" subUnits="r_ca r_dep" strict="false">
+    <parameters xmi:id="p_loose_client" name="client" kind="IN"/>
+    <parameters xmi:id="p_loose_id" name="accountId" kind="IN"/>
+    <parameters xmi:id="p_loose_amount" name="amount" kind="IN"/>
+    <parameterMappings source="p_loose_client" target="p_ca_client"/>
+    <parameterMappings source="p_loose_id" target="p_ca_id"/>
+    <parameterMappings source="p_loose_id" target="p_dep_id"/>
+    <parameterMappings source="p_loose_amount" target="p_dep_amount"/>
+  </units>
+
+  <!-- ensureClientAccount: opens an account for an existing client, else creates the client. -->
+  <units xsi:type="henshin:ConditionalUnit" xmi:id="u_cond" name="ensureClientAccount" if="r_hc" then="r_ca" else="r_cl">
+    <parameters xmi:id="p_cond_name" name="name" kind="IN"/>
+    <parameters xmi:id="p_cond_id" name="accountId" kind="IN"/>
+    <parameters xmi:id="p_cond_client" name="client" kind="OUT"/>
+    <parameterMappings source="p_cond_name" target="p_hc_name"/>
+    <parameterMappings source="p_hc_client" target="p_cond_client"/>
+    <parameterMappings source="p_cond_name" target="p_ca_client"/>
+    <parameterMappings source="p_cond_id" target="p_ca_id"/>
+    <parameterMappings source="p_cond_name" target="p_cl_name"/>
+  </units>
+
+  <!-- depositOrCreate: deposits if the account exists, else creates it. -->
+  <units xsi:type="henshin:PriorityUnit" xmi:id="u_prio" name="depositOrCreate" subUnits="r_dep r_ca">
+    <parameters xmi:id="p_prio_name" name="name" kind="IN"/>
+    <parameters xmi:id="p_prio_id" name="accountId" kind="IN"/>
+    <parameters xmi:id="p_prio_amount" name="amount" kind="IN"/>
+    <parameterMappings source="p_prio_id" target="p_dep_id"/>
+    <parameterMappings source="p_prio_amount" target="p_dep_amount"/>
+    <parameterMappings source="p_prio_name" target="p_ca_client"/>
+    <parameterMappings source="p_prio_id" target="p_ca_id"/>
+  </units>
+
+  <!-- freezeOrCreate: applies one applicable sub-unit. -->
+  <units xsi:type="henshin:IndependentUnit" xmi:id="u_indep" name="freezeOrCreate" subUnits="r_fz r_cl">
+    <parameters xmi:id="p_indep_name" name="name" kind="IN"/>
+    <parameterMappings source="p_indep_name" target="p_cl_name"/>
+  </units>
+
+  <!-- freezeAll: freezes every owned account. -->
+  <units xsi:type="henshin:LoopUnit" xmi:id="u_loop" name="freezeAll" subUnit="r_fz"/>
+
+  <!-- bonusThrice: adds a bonus three times. -->
+  <units xsi:type="henshin:IteratedUnit" xmi:id="u_iter" name="bonusThrice" subUnit="r_bonus" iterations="3">
+    <parameters xmi:id="p_iter_id" name="id" kind="IN"/>
+    <parameterMappings source="p_iter_id" target="p_bonus_id"/>
+  </units>
+
+  <!-- bonusTimes: adds a bonus a given number of times. -->
+  <units xsi:type="henshin:IteratedUnit" xmi:id="u_itern" name="bonusTimes" subUnit="r_bonus" iterations="n">
+    <parameters xmi:id="p_itern_id" name="id" kind="IN"/>
+    <parameters xmi:id="p_itern_n" name="n" kind="IN"/>
+    <parameterMappings source="p_itern_id" target="p_bonus_id"/>
+  </units>
+
+  <!-- bonusTwiceTimes: adds a bonus twice the given number of times. -->
+  <units xsi:type="henshin:IteratedUnit" xmi:id="u_iterx" name="bonusTwiceTimes" subUnit="r_bonus" iterations="n * 2">
+    <parameters xmi:id="p_iterx_id" name="id" kind="IN"/>
+    <parameters xmi:id="p_iterx_n" name="n" kind="IN"/>
+    <parameterMappings source="p_iterx_id" target="p_bonus_id"/>
+  </units>
+
+  <!-- deleteTwice: a strict iteration that fails on its second step and rolls back. -->
+  <units xsi:type="henshin:IteratedUnit" xmi:id="u_iters" name="deleteTwice" subUnit="r_del" iterations="2" strict="true">
+    <parameters xmi:id="p_iters_id" name="id" kind="IN"/>
+    <parameterMappings source="p_iters_id" target="p_del_id"/>
+  </units>
+
+  <!-- deleteTwiceLenient: the same iteration without strictness keeps the first deletion. -->
+  <units xsi:type="henshin:IteratedUnit" xmi:id="u_iterl" name="deleteTwiceLenient" subUnit="r_del" iterations="2">
+    <parameters xmi:id="p_iterl_id" name="id" kind="IN"/>
+    <parameterMappings source="p_iterl_id" target="p_del_id"/>
+  </units>
+
+  <!-- dormant: a deactivated rule that succeeds without effect. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_dorm" name="dormant" activated="false">
+    <lhs xmi:id="dorm_l" name="Lhs">
+      <nodes xmi:id="dorm_l_a"><type href="bank.ecore#//Account"/></nodes>
+    </lhs>
+    <rhs xmi:id="dorm_r" name="Rhs"/>
+  </units>
+</henshin:Module>

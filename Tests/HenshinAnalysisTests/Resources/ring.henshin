@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="module" name="tokenRing" description="Neutral token-ring mutual exclusion rules for state-space exploration">
+  <imports href="ring.ecore#/"/>
+
+  <!-- request: an idle process asks for the critical section. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_rq" name="request">
+    <lhs xmi:id="rq_l" name="Lhs">
+      <nodes xmi:id="rq_l_p" name="p">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="rq_l_p_s" value="'idle'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="rq_r" name="Rhs">
+      <nodes xmi:id="rq_r_p" name="p">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="rq_r_p_s" value="'waiting'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="rq_m1" origin="rq_l_p" image="rq_r_p"/>
+  </units>
+
+  <!-- enter: a waiting process that holds the token enters the critical section. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_en" name="enter">
+    <lhs xmi:id="en_l" name="Lhs">
+      <nodes xmi:id="en_l_t" name="t"><type href="ring.ecore#//Token"/></nodes>
+      <nodes xmi:id="en_l_p" name="p">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="en_l_p_s" value="'waiting'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+      <edges xmi:id="en_l_e" source="en_l_t" target="en_l_p"><type href="ring.ecore#//Token/holder"/></edges>
+    </lhs>
+    <rhs xmi:id="en_r" name="Rhs">
+      <nodes xmi:id="en_r_t" name="t"><type href="ring.ecore#//Token"/></nodes>
+      <nodes xmi:id="en_r_p" name="p">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="en_r_p_s" value="'critical'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+      <edges xmi:id="en_r_e" source="en_r_t" target="en_r_p"><type href="ring.ecore#//Token/holder"/></edges>
+    </rhs>
+    <mappings xmi:id="en_m1" origin="en_l_t" image="en_r_t"/>
+    <mappings xmi:id="en_m2" origin="en_l_p" image="en_r_p"/>
+  </units>
+
+  <!-- leave: a process leaves the critical section and keeps the token. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_lv" name="leave">
+    <lhs xmi:id="lv_l" name="Lhs">
+      <nodes xmi:id="lv_l_p" name="p">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="lv_l_p_s" value="'critical'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="lv_r" name="Rhs">
+      <nodes xmi:id="lv_r_p" name="p">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="lv_r_p_s" value="'idle'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="lv_m1" origin="lv_l_p" image="lv_r_p"/>
+  </units>
+
+  <!-- pass: a process outside the critical section passes the token to its successor. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_ps" name="pass">
+    <lhs xmi:id="ps_l" name="Lhs">
+      <nodes xmi:id="ps_l_t" name="t"><type href="ring.ecore#//Token"/></nodes>
+      <nodes xmi:id="ps_l_p" name="p"><type href="ring.ecore#//Process"/></nodes>
+      <nodes xmi:id="ps_l_q" name="q"><type href="ring.ecore#//Process"/></nodes>
+      <edges xmi:id="ps_l_e1" source="ps_l_t" target="ps_l_p"><type href="ring.ecore#//Token/holder"/></edges>
+      <edges xmi:id="ps_l_e2" source="ps_l_p" target="ps_l_q"><type href="ring.ecore#//Process/next"/></edges>
+      <formula xsi:type="henshin:Not" xmi:id="ps_l_not">
+        <child xsi:type="henshin:NestedCondition" xmi:id="ps_l_nac">
+          <conclusion xmi:id="ps_n" name="inCritical">
+            <nodes xmi:id="ps_n_p">
+              <type href="ring.ecore#//Process"/>
+              <attributes xmi:id="ps_n_p_s" value="'critical'"><type href="ring.ecore#//Process/state"/></attributes>
+            </nodes>
+          </conclusion>
+          <mappings xmi:id="ps_n_m1" origin="ps_l_p" image="ps_n_p"/>
+        </child>
+      </formula>
+    </lhs>
+    <rhs xmi:id="ps_r" name="Rhs">
+      <nodes xmi:id="ps_r_t" name="t"><type href="ring.ecore#//Token"/></nodes>
+      <nodes xmi:id="ps_r_p" name="p"><type href="ring.ecore#//Process"/></nodes>
+      <nodes xmi:id="ps_r_q" name="q"><type href="ring.ecore#//Process"/></nodes>
+      <edges xmi:id="ps_r_e1" source="ps_r_t" target="ps_r_q"><type href="ring.ecore#//Token/holder"/></edges>
+      <edges xmi:id="ps_r_e2" source="ps_r_p" target="ps_r_q"><type href="ring.ecore#//Process/next"/></edges>
+    </rhs>
+    <mappings xmi:id="ps_m1" origin="ps_l_t" image="ps_r_t"/>
+    <mappings xmi:id="ps_m2" origin="ps_l_p" image="ps_r_p"/>
+    <mappings xmi:id="ps_m3" origin="ps_l_q" image="ps_r_q"/>
+  </units>
+
+  <!-- twoCritical: a pattern of two processes in the critical section at once. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_tc" name="twoCritical">
+    <lhs xmi:id="tc_l" name="Lhs">
+      <nodes xmi:id="tc_l_p" name="p">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="tc_l_p_s" value="'critical'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+      <nodes xmi:id="tc_l_q" name="q">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="tc_l_q_s" value="'critical'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="tc_r" name="Rhs">
+      <nodes xmi:id="tc_r_p" name="p">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="tc_r_p_s" value="'critical'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+      <nodes xmi:id="tc_r_q" name="q">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="tc_r_q_s" value="'critical'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="tc_m1" origin="tc_l_p" image="tc_r_p"/>
+    <mappings xmi:id="tc_m2" origin="tc_l_q" image="tc_r_q"/>
+  </units>
+
+  <!-- someCritical: a pattern of a process in the critical section. -->
+  <units xsi:type="henshin:Rule" xmi:id="r_sc" name="someCritical">
+    <lhs xmi:id="sc_l" name="Lhs">
+      <nodes xmi:id="sc_l_p" name="p">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="sc_l_p_s" value="'critical'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="sc_r" name="Rhs">
+      <nodes xmi:id="sc_r_p" name="p">
+        <type href="ring.ecore#//Process"/>
+        <attributes xmi:id="sc_r_p_s" value="'critical'"><type href="ring.ecore#//Process/state"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="sc_m1" origin="sc_l_p" image="sc_r_p"/>
+  </units>
+
+  <!-- cycle: one round of the protocol for the token holder, as an atomic unit. -->
+  <units xsi:type="henshin:SequentialUnit" xmi:id="u_cy" name="cycle" subUnits="r_rq r_en r_lv"/>
+</henshin:Module>

@@ -1,0 +1,22 @@
+Henshin transformation metamodel (henshin.ecore)
+=================================================
+
+The file Sources/Henshin/Resources/henshin.ecore is an unchanged copy of the
+Henshin transformation metamodel published by the Eclipse Henshin project:
+
+  Project:    Eclipse Henshin, https://github.com/eclipse-henshin/henshin
+  File:       plugins/org.eclipse.emf.henshin.model/model/henshin.ecore
+  Revision:   0105af629a80c225466687d8412cfa9f1672cbb9
+  SHA-256:    ed5a6400310a51e834062c120c8b5b8ec093773e1d9bc70181cf10b4520edc7d
+
+Copyright (c) 2010-2014 Henshin developers. All rights reserved.
+
+This metamodel is made available under the terms of the Eclipse Public
+License. The source files and feature licence of the Henshin model plug-in
+at the revision above name the Eclipse Public License v1.0
+(https://www.eclipse.org/legal/epl-v10.html).
+
+The file is distributed as a resource of this package so that Henshin
+documents can be read. It is not covered by the licence of this package, and
+the terms of the Eclipse Public License continue to apply to it. The source of
+the file is available from the project repository named above.
