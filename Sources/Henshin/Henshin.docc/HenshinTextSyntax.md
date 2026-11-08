@@ -56,7 +56,10 @@ reading the document back gives a module with the same behaviour, and writing th
 again gives the same document. A module read from a `.henshin` document can be written as
 well; what Henshin Text cannot express is reported with the code
 ``HenshinTextDiagnosticCode/notExpressible``, and what the writer changes in order to
-express the module, with ``HenshinTextDiagnosticCode/adjusted``.
+express the module, with ``HenshinTextDiagnosticCode/adjusted``. The grammar of Henshin Text
+has no element for descriptions: the description of a unit is written as a `//` comment
+before the unit, which reading the document does not restore, and the description of the
+module is left out with a warning.
 
 ### Translation
 

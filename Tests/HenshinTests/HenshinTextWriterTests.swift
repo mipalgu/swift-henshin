@@ -40,7 +40,8 @@ struct HenshinTextWriterTests {
         let xmi = try await Fixtures.bank()
         let (written, read) = try await roundTrip(xmi.module)
         let lost = written.diagnostics.filter { $0.severity != .information }
-        #expect(lost.count == 2, "\(lost.map(\.message))")
+        #expect(lost.count == 3, "\(lost.map(\.message))")
+        #expect(lost.contains { $0.message.contains("description of the module") })
         #expect(lost.contains { $0.message.contains("'deleteTwice'") })
         #expect(lost.contains { $0.message.contains("'dormant'") })
         #expect(!written.isFaithful)
@@ -195,5 +196,22 @@ struct HenshinTextWriterTests {
         #expect(written.diagnostics.contains { $0.message.contains("http://example.org/unknown") })
         #expect(written.diagnostics.contains { $0.code == HenshinTextDiagnosticCode.adjusted.rawValue && $0.message.contains("package 'bank'") })
         #expect(written.text.hasPrefix("ePackageImport bank\n"))
+    }
+
+    @Test("The description of the module is left out with a warning, as Henshin Text has no place for it")
+    func moduleDescription() async throws {
+        var module = try await Fixtures.bankText().module
+        module.description = "Rules of a bank"
+        let (written, read) = try await roundTrip(module)
+        let warnings = written.diagnostics.filter { $0.severity == .warning }
+        #expect(warnings.count == 1, "\(written.diagnostics.map(\.message))")
+        #expect(warnings.first?.code == HenshinTextDiagnosticCode.notExpressible.rawValue)
+        #expect(warnings.first?.message.contains("description of the module") == true)
+        #expect(!written.isFaithful)
+        #expect(!written.text.contains("Rules of a bank"))
+        #expect(written.text.hasPrefix("ePackageImport bank\n"))
+        #expect(read.diagnostics.isEmpty, "\(read.diagnostics.map(\.message))")
+        module.description = ""
+        #expect(HenshinText.write(module, packages: [try await Fixtures.bankPackage()]).diagnostics.isEmpty)
     }
 }

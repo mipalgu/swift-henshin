@@ -101,6 +101,9 @@ struct HenshinTextWriter {
     ///
     /// - Returns: The document and its diagnostics.
     mutating func write() -> HenshinTextWriting {
+        if let description = module.description, !description.isEmpty {
+            report(.warning, .notExpressible, "Henshin Text has no description of a module; the description of the module is left out")
+        }
         writeImports()
         inferParameterTypes()
         var names = Set<String>()
