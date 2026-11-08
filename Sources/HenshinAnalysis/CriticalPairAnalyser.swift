@@ -72,8 +72,9 @@ public struct AnalysisOptions: Sendable, Hashable {
 /// Finds the conflicts and dependencies of Henshin rules by critical pair analysis.
 ///
 /// The analysis is static: it examines how the graphs of two rules can overlap, without a
-/// model. Following Ehrig, Ehrig, Prange and Taentzer, *Fundamentals of Algebraic Graph
-/// Transformation* (2006), two rule applications are in conflict if one disables the other,
+/// model. Following Ehrig, Ehrig, Prange and Taentzer,
+/// *[Fundamentals of Algebraic Graph Transformation](https://doi.org/10.1007/3-540-31188-2)*
+/// (2006), two rule applications are in conflict if one disables the other,
 /// and the second depends on the first if the first enables it. The analysis reports, for an
 /// ordered pair of rules:
 ///
@@ -87,11 +88,12 @@ public struct AnalysisOptions: Sendable, Hashable {
 ///   *change-use* and *change-forbid*.
 ///
 /// Dependencies are found as conflicts of the inverse of the first rule, as in Henshin's
-/// conflict and dependency analysis. Results come at the granularity levels of Born,
-/// Lambers, Strüber and Taentzer (FASE 2017): whether the rules interact, the atoms, the
+/// conflict and dependency analysis. Results come at the granularity levels of Lambers, Born,
+/// Kosiol, Strüber and Taentzer
+/// ([JLAMP 2019](https://www.sciencedirect.com/science/article/pii/S235222081830004X)): whether the rules interact, the atoms, the
 /// minimal reasons and the critical pairs, each critical pair with its overlap graph and the
 /// matches of both rules. A critical pair is marked essential in the sense of Lambers, Ehrig
-/// and Orejas (2008) when its overlap consists of the elements that cause the interaction.
+/// and Orejas ([2008](https://doi.org/10.1016/j.entcs.2008.04.026)) when its overlap consists of the elements that cause the interaction.
 ///
 /// The analysis over-approximates: attribute conditions and the values of non-literal
 /// attribute expressions are not evaluated, so it may report interactions that no model

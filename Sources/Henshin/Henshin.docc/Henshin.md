@@ -39,6 +39,7 @@ if result.succeeded {
 - ``HenshinModuleLoader``
 - ``HenshinEngine``
 - ``EngineOptions``
+- ``IndexedModel``
 
 ### Henshin Text
 

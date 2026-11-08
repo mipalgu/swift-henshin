@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="module" name="cells" description="Neutral rules that step each cell of a board through three states">
+  <imports href="cells.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="r_ab" name="ab">
+    <lhs xmi:id="ab_l" name="Lhs">
+      <nodes xmi:id="ab_l_c" name="c">
+        <type href="cells.ecore#//Cell"/>
+        <attributes xmi:id="ab_l_c_s" value="'a'"><type href="cells.ecore#//Cell/state"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="ab_r" name="Rhs">
+      <nodes xmi:id="ab_r_c" name="c">
+        <type href="cells.ecore#//Cell"/>
+        <attributes xmi:id="ab_r_c_s" value="'b'"><type href="cells.ecore#//Cell/state"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="ab_m" origin="ab_l_c" image="ab_r_c"/>
+  </units>
+  <units xsi:type="henshin:Rule" xmi:id="r_bc" name="bc">
+    <lhs xmi:id="bc_l" name="Lhs">
+      <nodes xmi:id="bc_l_c" name="c">
+        <type href="cells.ecore#//Cell"/>
+        <attributes xmi:id="bc_l_c_s" value="'b'"><type href="cells.ecore#//Cell/state"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="bc_r" name="Rhs">
+      <nodes xmi:id="bc_r_c" name="c">
+        <type href="cells.ecore#//Cell"/>
+        <attributes xmi:id="bc_r_c_s" value="'c'"><type href="cells.ecore#//Cell/state"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="bc_m" origin="bc_l_c" image="bc_r_c"/>
+  </units>
+  <units xsi:type="henshin:Rule" xmi:id="r_ca" name="ca">
+    <lhs xmi:id="ca_l" name="Lhs">
+      <nodes xmi:id="ca_l_c" name="c">
+        <type href="cells.ecore#//Cell"/>
+        <attributes xmi:id="ca_l_c_s" value="'c'"><type href="cells.ecore#//Cell/state"/></attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="ca_r" name="Rhs">
+      <nodes xmi:id="ca_r_c" name="c">
+        <type href="cells.ecore#//Cell"/>
+        <attributes xmi:id="ca_r_c_s" value="'a'"><type href="cells.ecore#//Cell/state"/></attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="ca_m" origin="ca_l_c" image="ca_r_c"/>
+  </units>
+</henshin:Module>

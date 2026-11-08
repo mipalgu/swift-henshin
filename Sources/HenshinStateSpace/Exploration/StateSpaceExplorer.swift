@@ -37,7 +37,8 @@ public enum StateSpaceError: Error, Sendable, Equatable, CustomStringConvertible
 /// as a state and each application as a transition. States are identified up to
 /// isomorphism, with certificates computed by colour refinement and confirmed by an exact
 /// isomorphism search (see ``StateEquivalence``), following the approach of GROOVE
-/// (Rensink, AGTIVE 2003) and Henshin's state-space tools. Limits on the number of states,
+/// ([Rensink, AGTIVE 2003](https://doi.org/10.1007/978-3-540-25959-6_40)) and Henshin's
+/// state-space tools. Limits on the number of states,
 /// the depth and the size of models bound the exploration; states cut off by a limit stay
 /// open.
 ///
@@ -201,6 +202,9 @@ public struct StateSpaceExplorer: Sendable {
 
     /// Computes the successors of one state.
     ///
+    /// The model of the state is indexed once; each rule is applied at each of its matches
+    /// to a copy of the indexed model.
+    ///
     /// - Parameters:
     ///   - model: The model of the state.
     ///   - pinned: The rules, pinned.
@@ -209,21 +213,22 @@ public struct StateSpaceExplorer: Sendable {
     func successors(of model: ResourceSnapshot, pinned: [PinnedRule], worker: Resource) async throws -> [Successor] {
         let engine = HenshinEngine(options: options.engineOptions)
         var result: [Successor] = []
+        await worker.restore(model)
+        var indexed = await engine.index(worker)
         for rule in pinned {
             for given in options.parameterValues[rule.original.name] ?? [[:]] {
-                await worker.restore(model)
-                let matches = try await engine.findMatches(of: rule.original, in: worker, parameters: given)
+                let matches = try await indexed.findMatches(of: rule.original, parameters: given)
                 for match in matches {
                     try Task.checkCancellation()
-                    await worker.restore(model)
+                    var step = indexed
                     let application: UnitApplication
                     do {
-                        application = try await engine.apply(rule.rule, to: worker, parameters: rule.arguments(for: match, given: given))
+                        application = try await step.apply(rule.original, at: match, parameters: given)
                     } catch HenshinError.unboundParameter(_, let parameter) {
                         throw StateSpaceError.unboundParameter(unit: rule.original.name, parameter: parameter)
                     }
                     guard application.succeeded else { continue }
-                    let successor = await worker.snapshot()
+                    let successor = step.model
                     var parameters = given
                     for (name, value) in rule.reportedParameters(match) { parameters[name] = value }
                     result.append(

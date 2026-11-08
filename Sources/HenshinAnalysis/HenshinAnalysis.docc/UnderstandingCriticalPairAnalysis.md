@@ -27,8 +27,9 @@ direction to look in is an ``InteractionDirection``.
 
 ### Granularity
 
-Results come at the levels of Born, Lambers, Strüber and Taentzer, "Granularity of conflicts
-and dependencies in graph transformation systems" (FASE 2017). Each level includes the
+Results come at the levels of Lambers, Born, Kosiol, Strüber and Taentzer, "[Granularity of
+conflicts and dependencies in graph transformation systems: A two-dimensional approach](https://www.sciencedirect.com/science/article/pii/S235222081830004X)"
+(JLAMP 2019). Each level includes the
 results of the coarser levels (see ``AnalysisGranularity``):
 
 - ``AnalysisGranularity/binary``: whether the rules interact at all;
@@ -39,8 +40,8 @@ results of the coarser levels (see ``AnalysisGranularity``):
 - ``AnalysisGranularity/criticalPairs``: every critical pair (``CriticalPair``), with its
   overlap graph (the minimal context) and the matches of both rules. A pair whose overlap
   consists of the elements that cause the interaction is marked essential, after Lambers,
-  Ehrig and Orejas, "Efficient conflict detection in graph transformation systems by
-  essential critical pairs" (2008).
+  Ehrig and Orejas, "[Efficient conflict detection in graph transformation systems by
+  essential critical pairs](https://doi.org/10.1016/j.entcs.2008.04.026)" (ENTCS 211, 2008).
 
 Finer levels cost more. Use ``AnalysisGranularity/binary`` to find which pairs of a large
 rule set need attention, and ``AnalysisGranularity/criticalPairs`` to study them.

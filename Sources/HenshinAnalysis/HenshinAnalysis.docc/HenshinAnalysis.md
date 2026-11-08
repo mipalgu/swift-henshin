@@ -7,10 +7,12 @@ Find the conflicts and dependencies of Henshin rules by critical pair analysis.
 Two rule applications are in *conflict* if applying one disables the other, and the second
 *depends* on the first if applying the first enables it. ``CriticalPairAnalyser`` decides
 this statically, from the rules alone, by examining how the graphs of two rules can overlap,
-as described by Ehrig, Ehrig, Prange and Taentzer in *Fundamentals of Algebraic Graph
-Transformation* (Springer, 2006). Results are available at the granularity levels of Born,
-Lambers, Strüber and Taentzer (FASE 2017), from whether two rules interact at all to every
-critical pair.
+as described by Ehrig, Ehrig, Prange and Taentzer in
+*[Fundamentals of Algebraic Graph Transformation](https://doi.org/10.1007/3-540-31188-2)*
+(Springer, 2006). Results are available at the granularity levels of Lambers, Born, Kosiol,
+Strüber and Taentzer
+([JLAMP 2019](https://www.sciencedirect.com/science/article/pii/S235222081830004X)), from
+whether two rules interact at all to every critical pair.
 
 ```swift
 let analyser = CriticalPairAnalyser()

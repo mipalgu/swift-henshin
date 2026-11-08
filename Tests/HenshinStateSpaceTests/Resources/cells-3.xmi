@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cells:Board xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cells="http://example.org/cells">
+  <cells name="c1" state="a"/>
+  <cells name="c2" state="a"/>
+  <cells name="c3" state="a"/>
+</cells:Board>

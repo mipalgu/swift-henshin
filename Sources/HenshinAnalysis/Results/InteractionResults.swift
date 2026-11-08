@@ -54,8 +54,9 @@ public enum InteractionKind: String, Sendable, Hashable, CaseIterable, Comparabl
 
 /// How finely an analysis describes the interactions of two rules.
 ///
-/// The levels follow Born, Lambers, Strüber and Taentzer, "Granularity of conflicts and
-/// dependencies in graph transformation systems" (FASE 2017). Each level includes the
+/// The levels follow Lambers, Born, Kosiol, Strüber and Taentzer, "[Granularity of conflicts
+/// and dependencies in graph transformation systems: A two-dimensional approach](https://www.sciencedirect.com/science/article/pii/S235222081830004X)"
+/// (JLAMP 2019). Each level includes the
 /// results of the coarser levels before it.
 public enum AnalysisGranularity: Int, Sendable, Hashable, CaseIterable, Comparable, CustomStringConvertible {
     /// Only whether the rules interact at all, decided as soon as one interaction is found.
@@ -393,7 +394,8 @@ public struct CriticalPair: Sendable, Hashable, CustomStringConvertible {
     public let criticalElements: [CriticalElement]
 
     /// Whether the pair is essential: every overlapped element causes the interaction or is
-    /// an end node of an edge that does (Lambers, Ehrig and Orejas, 2008).
+    /// an end node of an edge that does
+    /// ([Lambers, Ehrig and Orejas, 2008](https://doi.org/10.1016/j.entcs.2008.04.026)).
     public let isEssential: Bool
 
     /// Creates a critical pair.

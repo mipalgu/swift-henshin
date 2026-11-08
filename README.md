@@ -119,9 +119,11 @@ copy from Eclipse Henshin, published under the Eclipse Public License v1.0; see
 ## References
 
 - [Eclipse Henshin](https://eclipse.dev/henshin/) - The reference graph transformation tool for EMF
-- Born, Lambers, Strüber and Taentzer, "Granularity of conflicts and dependencies in graph
-  transformation systems" (FASE 2017) - The granularity levels of the analysis
-- Ehrig, Ehrig, Prange and Taentzer, *Fundamentals of Algebraic Graph Transformation*
+- Lambers, Born, Kosiol, Strüber and Taentzer, "[Granularity of conflicts and dependencies in
+  graph transformation systems: A two-dimensional approach](https://www.sciencedirect.com/science/article/pii/S235222081830004X)"
+  (JLAMP 2019) - The granularity levels of the analysis
+- Ehrig, Ehrig, Prange and Taentzer,
+  *[Fundamentals of Algebraic Graph Transformation](https://doi.org/10.1007/3-540-31188-2)*
   (Springer, 2006) - The theory of graph transformation and critical pairs
 - [GROOVE](https://groove.cs.utwente.nl/) - Graph-based state-space exploration and model checking
 - [Eclipse Modeling Framework (EMF)](https://eclipse.dev/emf/) - The metamodelling foundation

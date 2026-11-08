@@ -53,17 +53,37 @@ struct ApplicationSession: Sendable {
     ///   - resource: The resource to change.
     ///   - options: The options of the application.
     init(module: HenshinModule, resource: Resource, options: EngineOptions) async {
+        self.init(module: module, resource: resource, objects: await resource.getAllObjects(), options: options)
+    }
+
+    /// Creates a session whose index holds given objects of the resource.
+    ///
+    /// - Parameters:
+    ///   - module: The module whose units are applied.
+    ///   - resource: The resource to change.
+    ///   - objects: The objects of the resource, in order.
+    ///   - options: The options of the application.
+    init(module: HenshinModule, resource: Resource, objects: [any EObject], options: EngineOptions) {
         self.module = module
         self.options = options
         self.resource = resource
-        graph = ModelGraph(objects: await resource.getAllObjects())
-        random = SeededGenerator(seed: options.randomSeed ?? UInt64.random(in: UInt64.min...UInt64.max))
+        graph = ModelGraph(objects: objects)
+        random = Self.generator(for: options)
         if graph.foreignObjectCount > 0 {
             diagnostics.append(
                 .henshin(
                     .information, .foreignObject,
                     "\(graph.foreignObjectCount) object(s) of the resource are not dynamic objects and take no part in matching"))
         }
+    }
+
+    /// The random number generator with which an application starts.
+    ///
+    /// - Parameter options: The options of the application.
+    /// - Returns: A generator seeded with ``EngineOptions/randomSeed``, or from the system's
+    ///   source of randomness if there is no seed.
+    static func generator(for options: EngineOptions) -> SeededGenerator {
+        SeededGenerator(seed: options.randomSeed ?? UInt64.random(in: UInt64.min...UInt64.max))
     }
 
     // MARK: - Rules
@@ -135,16 +155,29 @@ struct ApplicationSession: Sendable {
 
     /// Finds matches of a rule.
     ///
+    /// A node fixed to an object matches only that object, and binds the parameter that
+    /// shares its name, if any, to it.
+    ///
     /// - Parameters:
     ///   - rule: The compiled rule.
     ///   - parameters: The parameter values given; object parameters fix their nodes.
+    ///   - fixed: The objects that left-hand side nodes are fixed to, by node identity
+    ///     (default: none).
     ///   - limit: The largest number of matches to find, or `nil` for all.
     /// - Returns: The matches, each with the matches of its multi-rules.
     /// - Throws: ``HenshinError`` if an expression cannot be evaluated.
-    mutating func findMatches(_ rule: CompiledRule, parameters: ParameterBindings, limit: Int?) async throws -> [MatchInstance] {
+    mutating func findMatches(
+        _ rule: CompiledRule, parameters: ParameterBindings, fixing fixed: [NodeID: EUUID] = [:], limit: Int?
+    ) async throws -> [MatchInstance] {
         statistics.searches += 1
         var state = MatchState(size: rule.lhs.nodes.count, parameters: parameters)
         for (position, node) in rule.lhs.nodes.enumerated() {
+            if let id = fixed[node.id] {
+                guard graph.contains(id) else { return [] }
+                if let name = node.parameter { state.parameters.bind(name, id) }
+                state.binding[position] = id
+                continue
+            }
             guard let name = node.parameter, let id = parameters.value(name) as? EUUID else { continue }
             guard graph.contains(id) else { return [] }
             state.binding[position] = id

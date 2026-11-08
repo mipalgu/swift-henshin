@@ -8,8 +8,9 @@ Explore the models that Henshin rules reach and check properties of them.
 model and to every model it reaches, breadth first. Each model becomes a state of a
 ``StateSpace`` and each application a ``StateTransition`` that records the rule, the matched
 objects and the parameter values. ``ModelChecker`` then checks reachability, invariants and
-freedom from deadlocks. The approach follows GROOVE (Rensink, "The GROOVE simulator: a tool
-for state space generation", AGTIVE 2003) and Henshin's state-space tools.
+freedom from deadlocks. The approach follows GROOVE (Rensink, "[The GROOVE simulator: a tool
+for state space generation](https://doi.org/10.1007/978-3-540-25959-6_40)", AGTIVE 2003) and
+Henshin's state-space tools.
 
 ```swift
 let explorer = try StateSpaceExplorer(module: module, rules: ["request", "enter", "leave", "pass"])

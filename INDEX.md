@@ -26,7 +26,7 @@ dependencies: [
 - [Eclipse Henshin](https://eclipse.dev/henshin/)
 - [Eclipse Modeling Framework (EMF)](https://eclipse.dev/emf/)
 - [GROOVE](https://groove.cs.utwente.nl/)
-- Ehrig, Ehrig, Prange and Taentzer, *Fundamentals of Algebraic Graph Transformation* (2006)
+- Ehrig, Ehrig, Prange and Taentzer, [*Fundamentals of Algebraic Graph Transformation*](https://doi.org/10.1007/3-540-31188-2) (2006)
 
 ## Related Packages
 

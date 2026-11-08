@@ -11,8 +11,9 @@ import Foundation
 /// The checks that correspond to Henshin's clean-up operation.
 ///
 /// Henshin's editor offers a clean-up operation for modules, units and rules that removes or
-/// repairs inconsistent elements (Strüber et al., "Henshin: A Usability-Focused Framework
-/// for EMF Model Transformation Development", ICGT 2017). The validator reports, as
+/// repairs inconsistent elements (Strüber et al., "[Henshin: A Usability-Focused Framework
+/// for EMF Model Transformation Development](https://doi.org/10.1007/978-3-319-61470-0_12)",
+/// ICGT 2017). The validator reports, as
 /// warnings, each element that the operation would change, so that the problem can be
 /// fixed in the document.
 extension HenshinValidator {

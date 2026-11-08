@@ -65,7 +65,7 @@ well-definedness and consistency:
 | A rule that checks the dangling condition and deletes a node without its containment edge | Warning |
 | A rule graph with a cycle of containment edges | Warning |
 
-It also reports, as warnings, what Henshin's clean-up operation (Strüber et al., ICGT 2017)
+It also reports, as warnings, what Henshin's clean-up operation ([Strüber et al., ICGT 2017](https://doi.org/10.1007/978-3-319-61470-0_12))
 would remove or repair:
 
 | Finding | Code |
