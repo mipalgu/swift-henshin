@@ -158,6 +158,12 @@ struct ApplicationSession: Sendable {
     /// A node fixed to an object matches only that object, and binds the parameter that
     /// shares its name, if any, to it.
     ///
+    /// On WebAssembly, every search first lets other tasks run. WebAssembly has no tail
+    /// calls, so each asynchronous call that completes without suspending deepens the call
+    /// stack until the task next suspends. A caller that finds matches and applies rules
+    /// again and again, such as the exploration of a state space, would otherwise exhaust
+    /// the stack even if each search examines few candidates.
+    ///
     /// - Parameters:
     ///   - rule: The compiled rule.
     ///   - parameters: The parameter values given; object parameters fix their nodes.
@@ -169,6 +175,9 @@ struct ApplicationSession: Sendable {
     mutating func findMatches(
         _ rule: CompiledRule, parameters: ParameterBindings, fixing fixed: [NodeID: EUUID] = [:], limit: Int?
     ) async throws -> [MatchInstance] {
+        #if os(WASI)
+        await Task.yield()
+        #endif
         statistics.searches += 1
         var state = MatchState(size: rule.lhs.nodes.count, parameters: parameters)
         for (position, node) in rule.lhs.nodes.enumerated() {
