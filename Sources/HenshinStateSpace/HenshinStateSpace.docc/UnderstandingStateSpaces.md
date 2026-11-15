@@ -54,3 +54,23 @@ A ``CheckResult`` is conclusive when its answer holds for every model that the r
 reach. A witness or counterexample is always conclusive. The absence of one is conclusive
 only if the state space is complete; otherwise ``CheckResult/isConclusive`` is `false`, and
 the result says only that nothing was found within the bounds.
+
+## Related Documentation
+
+### Command Line and Tutorials
+
+- [swift-henshin](https://mipalgu.github.io/swift-modelling/documentation/swift_henshin/index.html) - the command-line tool of swift-modelling
+- [Analysing and Exploring Graph Transformations](https://mipalgu.github.io/swift-modelling/tutorials/swiftmodelling/henshin-02-analysis-exploration/index.html)
+- [All tutorials](https://mipalgu.github.io/swift-modelling/tutorials/tutorials/index.html)
+
+### Henshin Modules
+
+- [Henshin](https://mipalgu.github.io/swift-henshin/documentation/henshin/) - applying rules and units to Ecore models
+- [HenshinAnalysis](https://mipalgu.github.io/swift-henshin/documentation/henshinanalysis/) - conflicts and dependencies of rules by critical pair analysis
+
+### Related Packages
+
+- [swift-ecore](https://mipalgu.github.io/swift-ecore/documentation/ecore/) - the Ecore metamodels and models that rules transform
+- [swift-aql](https://mipalgu.github.io/swift-aql/documentation/aql/) - evaluates the attribute expressions of rules
+- [swift-atl](https://mipalgu.github.io/swift-atl/) - ATL model transformations
+- [swift-modelling](https://mipalgu.github.io/swift-modelling/) - command-line tools and tutorials for the whole toolkit

@@ -108,6 +108,22 @@ The DocC documentation covers each module:
   [Getting Started](https://mipalgu.github.io/swift-henshin/documentation/henshinstatespace/gettingstarted)
   and [Understanding State Spaces](https://mipalgu.github.io/swift-henshin/documentation/henshinstatespace/understandingstatespaces)
 
+The `swift-henshin` command-line tool of [swift-modelling](https://mipalgu.github.io/swift-modelling/) is described in
+[swift-henshin](https://mipalgu.github.io/swift-modelling/documentation/swift_henshin/index.html),
+and the Henshin tutorials [Graph Transformation Rules with Henshin](https://mipalgu.github.io/swift-modelling/tutorials/swiftmodelling/henshin-01-graph-rules/index.html) and
+[Analysing and Exploring Graph Transformations](https://mipalgu.github.io/swift-modelling/tutorials/swiftmodelling/henshin-02-analysis-exploration/index.html)
+introduce it step by step (see all [tutorials](https://mipalgu.github.io/swift-modelling/tutorials/tutorials/index.html)).
+
+## Related Packages
+
+- [swift-ecore](https://mipalgu.github.io/swift-ecore/) - EMF/Ecore metamodelling, OCL, generator models and multi-level modelling ([GitHub](https://github.com/mipalgu/swift-ecore))
+- [swift-aql](https://mipalgu.github.io/swift-aql/) - AQL model queries ([GitHub](https://github.com/mipalgu/swift-aql))
+- [swift-mtl](https://mipalgu.github.io/swift-mtl/) - MTL model-to-text generation ([GitHub](https://github.com/mipalgu/swift-mtl))
+- [swift-atl](https://mipalgu.github.io/swift-atl/) - ATL model transformations ([GitHub](https://github.com/mipalgu/swift-atl))
+- [swift-epsilon](https://mipalgu.github.io/swift-epsilon/) - Epsilon model management languages (EOL, EVL, ETL and EGL) ([GitHub](https://github.com/mipalgu/swift-epsilon))
+- [swift-xtend](https://mipalgu.github.io/swift-xtend/) - Xtend generators and transformations ([GitHub](https://github.com/mipalgu/swift-xtend))
+- [swift-modelling](https://mipalgu.github.io/swift-modelling/) - Command-line tools, code generators and tutorials for the whole toolkit ([GitHub](https://github.com/mipalgu/swift-modelling))
+
 ## Licence
 
 See the details in the LICENCE file.
@@ -127,5 +143,3 @@ copy from Eclipse Henshin, published under the Eclipse Public License v1.0; see
   (Springer, 2006) - The theory of graph transformation and critical pairs
 - [GROOVE](https://groove.cs.utwente.nl/) - Graph-based state-space exploration and model checking
 - [Eclipse Modeling Framework (EMF)](https://eclipse.dev/emf/) - The metamodelling foundation
-- [swift-ecore](https://github.com/mipalgu/swift-ecore) - The Swift Ecore metamodelling framework
-- [swift-aql](https://github.com/mipalgu/swift-aql) - The Swift Acceleo Query Language implementation
