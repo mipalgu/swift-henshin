@@ -149,5 +149,26 @@ module was lost. See <doc:HenshinTextSyntax> for the syntax.
 
 - <doc:SupportedFeatures> lists the parts of Henshin that the engine interprets.
 - <doc:JavaScriptToAQL> describes how attribute expressions are evaluated.
-- The `HenshinAnalysis` and `HenshinStateSpace` modules analyse rules and explore the
-  models that they reach.
+- The [HenshinAnalysis](https://mipalgu.github.io/swift-henshin/documentation/henshinanalysis/)
+  and [HenshinStateSpace](https://mipalgu.github.io/swift-henshin/documentation/henshinstatespace/)
+  modules analyse rules and explore the models that they reach.
+
+## Related Documentation
+
+### Command Line and Tutorials
+
+- [swift-henshin](https://mipalgu.github.io/swift-modelling/documentation/swift_henshin/index.html) - the command-line tool of swift-modelling
+- [Graph Transformation Rules with Henshin](https://mipalgu.github.io/swift-modelling/tutorials/swiftmodelling/henshin-01-graph-rules/index.html)
+- [All tutorials](https://mipalgu.github.io/swift-modelling/tutorials/tutorials/index.html)
+
+### Henshin Modules
+
+- [HenshinAnalysis](https://mipalgu.github.io/swift-henshin/documentation/henshinanalysis/) - conflicts and dependencies of rules by critical pair analysis
+- [HenshinStateSpace](https://mipalgu.github.io/swift-henshin/documentation/henshinstatespace/) - state-space exploration and model checking
+
+### Related Packages
+
+- [swift-ecore](https://mipalgu.github.io/swift-ecore/documentation/ecore/) - the Ecore metamodels and models that rules transform
+- [swift-aql](https://mipalgu.github.io/swift-aql/documentation/aql/) - evaluates the attribute expressions of rules
+- [swift-atl](https://mipalgu.github.io/swift-atl/) - ATL model transformations
+- [swift-modelling](https://mipalgu.github.io/swift-modelling/) - command-line tools and tutorials for the whole toolkit
