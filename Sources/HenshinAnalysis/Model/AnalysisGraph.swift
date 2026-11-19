@@ -238,16 +238,16 @@ struct AnalysisGraph: Sendable {
     }
 }
 
-/// Decides whether classes conform to one another, by identity or name.
+/// Decides whether classes conform to one another, as ``ClassConformance`` does.
 enum TypeConformance {
-    /// Whether a class is a type or one of its subclasses.
+    /// Whether a class is a type or one of its subclasses, or the type is `EObject`.
     ///
     /// - Parameters:
     ///   - eClass: The class.
     ///   - type: The type.
     /// - Returns: `true` if the class conforms to the type.
     static func conforms(_ eClass: EClass, to type: EClass) -> Bool {
-        same(eClass, type) || eClass.eAllSuperTypes.contains { same($0, type) }
+        ClassConformance.conforms(eClass, to: type)
     }
 
     /// Whether two classes can describe the same object: one conforms to the other.
@@ -260,8 +260,4 @@ enum TypeConformance {
         conforms(lhs, to: rhs) ? lhs : rhs
     }
 
-    /// Whether two classes are the same, by identity or name.
-    static func same(_ lhs: EClass, _ rhs: EClass) -> Bool {
-        lhs.id == rhs.id || lhs.name == rhs.name
-    }
 }

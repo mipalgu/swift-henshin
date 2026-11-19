@@ -259,11 +259,29 @@ struct ModelGraph: Sendable {
     }
 }
 
+/// Decides whether classes conform to types.
+///
+/// A class conforms to a type if it is the type, a subclass of it, or if the type is
+/// Ecore's `EObject`, of which every model object is an instance. Classes are compared by
+/// identity and, failing that, by name, so that a rule whose metamodel was loaded
+/// separately from the model still matches the model's objects.
+package enum ClassConformance {
+    /// Whether a class conforms to a type.
+    ///
+    /// - Parameters:
+    ///   - eClass: The class of an object.
+    ///   - type: The type of a node.
+    /// - Returns: `true` if the class is the type, one of its subclasses, or the type is
+    ///   `EObject`.
+    package static func conforms(_ eClass: EClass, to type: EClass) -> Bool {
+        eClass.conforms(to: type) || eClass.name == type.name
+            || eClass.eAllSuperTypes.contains { $0.name == type.name }
+    }
+}
+
 /// Decides and remembers whether classes conform to types.
 ///
-/// A class conforms to a type if it is the type or a subclass of it. Classes are compared
-/// by identity and, failing that, by name, so that a rule whose metamodel was loaded
-/// separately from the model still matches the model's objects.
+/// Conformance is that of ``ClassConformance``.
 struct TypeCatalogue: Sendable {
     /// The decisions made so far, by class and type identity.
     private var conformance: [Pair: Bool] = [:]
@@ -287,19 +305,15 @@ struct TypeCatalogue: Sendable {
     /// - Parameters:
     ///   - eClass: The class of an object.
     ///   - type: The type of a node.
-    /// - Returns: `true` if the class is the type or one of its subclasses.
+    /// - Returns: `true` if the class is the type, one of its subclasses, or the type is
+    ///   `EObject`.
     mutating func conforms(_ eClass: EClass, to type: EClass) -> Bool {
         if eClass.id == type.id { return true }
         let key = Pair(subject: eClass.id, type: type.id)
         if let known = conformance[key] { return known }
-        let result = Self.same(eClass, type) || eClass.eAllSuperTypes.contains { Self.same($0, type) }
+        let result = ClassConformance.conforms(eClass, to: type)
         conformance[key] = result
         return result
-    }
-
-    /// Whether two classes are the same, by identity or name.
-    static func same(_ lhs: EClass, _ rhs: EClass) -> Bool {
-        lhs.id == rhs.id || lhs.name == rhs.name
     }
 
     /// What is known about a reference of a class.
