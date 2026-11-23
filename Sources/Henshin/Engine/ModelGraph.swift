@@ -262,9 +262,11 @@ struct ModelGraph: Sendable {
 /// Decides whether classes conform to types.
 ///
 /// A class conforms to a type if it is the type, a subclass of it, or if the type is
-/// Ecore's `EObject`, of which every model object is an instance. Classes are compared by
-/// identity and, failing that, by name, so that a rule whose metamodel was loaded
-/// separately from the model still matches the model's objects.
+/// Ecore's `EObject`, of which every model object is an instance (see
+/// `EClass.conforms(to:)`). Classes are compared by identity and, failing that, by name, so
+/// that a rule whose metamodel was loaded separately from the model still matches the
+/// model's objects. A class called `EObject` that a metamodel declares for itself is an
+/// ordinary class and never counts as Ecore's `EObject`, nor the other way round.
 package enum ClassConformance {
     /// Whether a class conforms to a type.
     ///
@@ -272,10 +274,24 @@ package enum ClassConformance {
     ///   - eClass: The class of an object.
     ///   - type: The type of a node.
     /// - Returns: `true` if the class is the type, one of its subclasses, or the type is
-    ///   `EObject`.
+    ///   Ecore's `EObject`.
     package static func conforms(_ eClass: EClass, to type: EClass) -> Bool {
-        eClass.conforms(to: type) || eClass.name == type.name
-            || eClass.eAllSuperTypes.contains { $0.name == type.name }
+        eClass.conforms(to: type) || isNamesake(eClass, of: type)
+            || eClass.eAllSuperTypes.contains { isNamesake($0, of: type) }
+    }
+
+    /// Whether two classes count as the same class because they have the same name.
+    ///
+    /// Ecore's `EObject` and a class called `EObject` that a metamodel declares for itself
+    /// are never namesakes.
+    ///
+    /// - Parameters:
+    ///   - eClass: The class to compare.
+    ///   - other: The class to compare it with.
+    /// - Returns: `true` if both classes have the same name and either both or neither are
+    ///   Ecore's `EObject`.
+    private static func isNamesake(_ eClass: EClass, of other: EClass) -> Bool {
+        eClass.name == other.name && eClass.isEObject == other.isEObject
     }
 }
 
