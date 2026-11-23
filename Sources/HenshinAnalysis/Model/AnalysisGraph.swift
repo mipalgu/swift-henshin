@@ -240,7 +240,7 @@ struct AnalysisGraph: Sendable {
 
 /// Decides whether classes conform to one another, as ``ClassConformance`` does.
 enum TypeConformance {
-    /// Whether a class is a type or one of its subclasses, or the type is `EObject`.
+    /// Whether a class is a type or one of its subclasses, or the type is Ecore's `EObject`.
     ///
     /// - Parameters:
     ///   - eClass: The class.

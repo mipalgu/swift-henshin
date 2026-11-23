@@ -12,7 +12,9 @@ transformation in the double-pushout approach with application conditions.
 - Nodes and edges of the left-hand side without an image in the right-hand side are
   deleted; those of the right-hand side without an origin are created; mapped ones are
   preserved. A node matches objects of its class and of its subclasses. As every model
-  object is an `EObject` in EMF, a node typed Ecore's `EObject` matches every object.
+  object is an `EObject` in EMF, a node typed Ecore's `EObject` matches every object. A
+  class called `EObject` that a metamodel declares for itself is an ordinary class: a node
+  typed with it matches only its instances and those of its subclasses.
 - Attributes of the left-hand side constrain values: a literal must be equal, a parameter
   is bound by the first attribute it appears in and must be equal in the others, and any
   other expression is evaluated as soon as the parameters it refers to have values.

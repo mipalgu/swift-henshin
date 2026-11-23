@@ -113,8 +113,53 @@ struct EObjectNodeTests {
             types.conforms(rules.account, to: rules.client),
         ]
         #expect(decisions == [true, true, true, false, false])
-        #expect(ClassConformance.conforms(rules.bank, to: EClass(name: EcoreClassifier.eObject.rawValue)))
+        #expect(!ClassConformance.conforms(rules.bank, to: EClass(name: EcoreClassifier.eObject.rawValue)))
         #expect(ClassConformance.conforms(rules.client, to: EClass(name: "Client")))
         #expect(!ClassConformance.conforms(rules.client, to: rules.account))
+    }
+
+    /// A metamodel that declares a class of its own called `EObject`, extended by `Node`.
+    struct OwnEObjectModel {
+        let ownEObject: EClass
+        let node: EClass
+        let other: EClass
+        let explicit: EClass
+
+        /// Creates the classes, each time with fresh identities.
+        init() {
+            ownEObject = EClass(name: EcoreClassifier.eObject.rawValue)
+            node = EClass(name: "Node", eSuperTypes: [ownEObject])
+            other = EClass(name: "Other")
+            explicit = EClass(name: "Explicit", eSuperTypes: [EcorePackage.metaClass(.eObject)])
+        }
+    }
+
+    @Test(
+        "A node typed with a class called EObject that a metamodel declares matches only its instances",
+        arguments: [false, true])
+    func declaredEObjectNode(separateMetamodel: Bool) async throws {
+        let model = OwnEObjectModel()
+        let resource = Resource(uri: "memory:/own.xmi")
+        let base = DynamicEObject(eClass: model.ownEObject)
+        let node = DynamicEObject(eClass: model.node)
+        await resource.add(contentsOf: [
+            base, node, DynamicEObject(eClass: model.other), DynamicEObject(eClass: model.explicit),
+        ])
+        let ruleTypes = separateMetamodel ? OwnEObjectModel() : model
+        func rule(_ type: EClass) -> Rule {
+            let lhs = RuleNode(id: NodeID(1), type: type)
+            let rhs = RuleNode(id: NodeID(2), type: type)
+            return Rule(
+                name: "find", lhs: RuleGraph(nodes: [lhs]), rhs: RuleGraph(nodes: [rhs]),
+                mappings: [NodeMapping(origin: lhs.id, image: rhs.id)])
+        }
+        let own = rule(ruleTypes.ownEObject)
+        let matched = try await engine.findMatches(of: own, in: resource).compactMap { $0.nodes[NodeID(1)] }
+        #expect(Set(matched) == [base.id, node.id])
+        #expect(try await engine.findMatches(of: rule(eObject), in: resource).count == 4)
+        #expect(!ClassConformance.conforms(model.other, to: ruleTypes.ownEObject))
+        #expect(!ClassConformance.conforms(model.explicit, to: ruleTypes.ownEObject))
+        #expect(ClassConformance.conforms(model.node, to: ruleTypes.ownEObject))
+        #expect(ClassConformance.conforms(model.ownEObject, to: eObject))
     }
 }
